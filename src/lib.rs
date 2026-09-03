@@ -109,7 +109,11 @@ macro_rules! from {
     ($from: ty, $for: ty) => {
         impl From<$from> for $for {
             fn from(socket: $from) -> $for {
-                #[cfg(any(unix, all(target_os = "wasi", not(target_env = "p1"))))]
+                #[cfg(any(
+                    unix,
+                    target_os = "scarlet",
+                    all(target_os = "wasi", not(target_env = "p1"))
+                ))]
                 unsafe {
                     <$for>::from_raw_fd(socket.into_raw_fd())
                 }
@@ -180,10 +184,16 @@ mod sockref;
     any(unix, all(target_os = "wasi", not(target_env = "p1"))),
     path = "sys/unix.rs"
 )]
+#[cfg_attr(target_os = "scarlet", path = "sys/scarlet.rs")]
 #[cfg_attr(windows, path = "sys/windows.rs")]
 mod sys;
 
-#[cfg(not(any(windows, unix, all(target_os = "wasi", not(target_env = "p1")))))]
+#[cfg(not(any(
+    windows,
+    unix,
+    target_os = "scarlet",
+    all(target_os = "wasi", not(target_env = "p1"))
+)))]
 compile_error!("Socket2 doesn't support the compile target");
 
 use sys::c_int;

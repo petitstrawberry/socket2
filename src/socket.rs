@@ -14,7 +14,11 @@ use std::mem::MaybeUninit;
 #[cfg(not(any(target_os = "nto", target_os = "nuttx")))]
 use std::net::Ipv6Addr;
 use std::net::{self, Ipv4Addr, Shutdown};
-#[cfg(any(unix, all(target_os = "wasi", not(target_env = "p1"))))]
+#[cfg(any(
+    unix,
+    target_os = "scarlet",
+    all(target_os = "wasi", not(target_env = "p1"))
+))]
 use std::os::fd::{FromRawFd, IntoRawFd};
 #[cfg(windows)]
 use std::os::windows::io::{FromRawSocket, IntoRawSocket};
@@ -367,7 +371,11 @@ impl Socket {
     /// On Windows it is not possible retrieve the nonblocking mode status.
     #[cfg(all(
         feature = "all",
-        any(unix, all(target_os = "wasi", not(target_env = "p1")))
+        any(
+            unix,
+            target_os = "scarlet",
+            all(target_os = "wasi", not(target_env = "p1"))
+        )
     ))]
     pub fn nonblocking(&self) -> io::Result<bool> {
         sys::nonblocking(self.as_raw())
